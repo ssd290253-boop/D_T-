@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sequential Circuit Analysis: D & T Flip-Flops</title>
+<style>
+:root{--bg:#f3eeff;--card:#fff;--ink:#2b2150;--mut:#6c6196;--lav:#b9a4ff;--lav2:#8b6cf0;--lav3:#e7deff;--acc:#6a45e0;--wire:#b7abd9;--hl:#ffe9f6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#16112a;--card:#211a3d;--ink:#ece6ff;--mut:#a99ed3;--lav:#7a62d6;--lav2:#a58cff;--lav3:#33295c;--acc:#b9a1ff;--wire:#4d4380;--hl:#3b2a5e;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#16112a;--card:#211a3d;--ink:#ece6ff;--mut:#a99ed3;--lav:#7a62d6;--lav2:#a58cff;--lav3:#33295c;--acc:#b9a1ff;--wire:#4d4380;--hl:#3b2a5e;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:calc(70px + env(safe-area-inset-top,0px))}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--card);border-bottom:2px solid var(--lav3);display:flex;gap:4px;align-items:center;padding:8px 14px;overflow-x:auto;white-space:nowrap}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--card);z-index:21}
+nav b{color:var(--acc);margin-right:10px;font-size:15px}
+nav a{color:var(--mut);text-decoration:none;padding:6px 11px;border-radius:99px;font-size:14px;font-weight:600}
+nav a:hover,nav a.on{background:var(--lav3);color:var(--acc)}
+nav a:focus-visible,button:focus-visible{outline:3px solid var(--lav2);outline-offset:2px}
+.hero{padding:56px 22px 40px;text-align:center;background:linear-gradient(160deg,color-mix(in srgb,var(--lav3) 70%,transparent),transparent)}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}header,main,footer{position:relative;z-index:1}
+.hero h1{font:800 clamp(28px,5vw,46px)/1.15 Georgia,"Times New Roman",serif;margin:0 auto 14px;max-width:820px;color:var(--ink)}
+.hero p{max-width:700px;margin:0 auto;color:var(--mut)}
+.chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+.chip{background:var(--card);border:2px solid var(--lav);border-radius:99px;padding:6px 16px;font-weight:700;color:var(--acc);font-size:14px}
+main{max-width:1060px;margin:0 auto;padding:10px 18px 60px}
+h2{font:700 28px/1.2 Georgia,serif;margin:50px 0 6px;color:var(--acc)}
+h3{font-size:19px;margin:30px 0 8px}
+section>p{color:var(--mut);margin:4px 0 14px}
+.card{background:var(--card);border:2px solid var(--lav3);border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 6px 22px rgba(106,69,224,.08)}
+.eq{display:grid;gap:8px}
+.eq div{background:var(--lav3);border-left:5px solid var(--lav2);padding:9px 14px;border-radius:8px;font:600 16px/1.5 "Cambria Math",Cambria,Georgia,serif;overflow-x:auto}
+.eq small{display:block;font:600 12px "Segoe UI",sans-serif;color:var(--mut)}
+.tw{overflow-x:auto;border-radius:14px;border:2px solid var(--lav3)}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:15px}
+th{background:var(--lav2);color:#fff;padding:9px 10px;font-weight:700}
+td{padding:8px 10px;text-align:center;border-top:1px solid var(--lav3)}
+tbody tr:nth-child(even){background:color-mix(in srgb,var(--lav3) 45%,transparent)}
+tbody tr.act{background:var(--hl);outline:2px solid var(--acc);outline-offset:-2px;font-weight:700}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+button{font:700 15px inherit;font-family:inherit;border:0;border-radius:12px;padding:9px 18px;cursor:pointer;background:var(--lav3);color:var(--acc)}
+button:hover{background:var(--lav)}
+button.run{background:var(--acc);color:#fff}button.run:hover{filter:brightness(1.12)}
+.stat{margin-left:auto;font-weight:700;color:var(--mut);font-size:14px}
+svg{width:100%;height:auto;display:block}
+.w{fill:none;stroke:var(--wire);stroke-width:3;transition:stroke .3s}
+.w.hi{stroke:var(--acc)}
+.bx{fill:var(--lav3);stroke:var(--lav2);stroke-width:2.5}
+.t{fill:var(--ink);font:700 14px "Segoe UI",sans-serif}.t.s{font-size:12px;fill:var(--mut)}
+.v{fill:var(--acc);font:800 15px "Segoe UI",sans-serif}
+.nd{fill:var(--wire)}.nd.hi{fill:var(--acc)}
+.st{fill:var(--card);stroke:var(--lav2);stroke-width:3;transition:.3s}.st.on{fill:var(--lav);stroke:var(--acc);stroke-width:5}
+.ed{fill:none;stroke:var(--wire);stroke-width:3;transition:.3s}.ed.on{stroke:var(--acc);stroke-width:5}
+.col{fill:transparent}.col.on{fill:var(--hl)}
+.wv{fill:none;stroke:var(--acc);stroke-width:3;stroke-linejoin:miter}.wv.c{stroke:var(--lav2)}
+.gl{stroke:var(--lav3);stroke-width:1.5}.gt{fill:none;stroke:var(--lav2);stroke-width:2.5}.ckt{width:100%}.sv{overflow-x:auto;-webkit-overflow-scrolling:touch}.sv svg{min-width:640px}.part{font-size:clamp(24px,5.5vw,34px)}@media(max-width:600px){main{padding:0 12px 40px}.card{padding:12px}.hero{padding:36px 16px 28px}h2{font-size:24px}button{padding:9px 14px}.stat{margin-left:0;width:100%}}#intro{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 25% 15%,var(--lav3),var(--bg) 72%);transition:opacity .7s,transform .7s}
+#intro.off{opacity:0;transform:scale(1.04);pointer-events:none;visibility:hidden;transition:opacity .7s,transform .7s,visibility 0s .7s}
+.ibox{max-width:780px;width:100%}.itag{color:var(--acc);font-weight:700}
+.ibox h1{font:800 clamp(32px,6.5vw,60px)/1.1 Georgia,serif;margin:12px 0 20px;min-height:1.2em}
+.ibox p{font-size:clamp(16px,2.5vw,22px);color:var(--mut);min-height:1.7em;margin:8px 0}
+.cur::after{content:"";display:inline-block;width:3px;height:1em;background:var(--acc);margin-left:3px;vertical-align:-.12em;animation:bl 1s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
+.ib{height:5px;border-radius:9px;background:var(--lav3);margin:28px 0 22px;overflow:hidden}.ib i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--lav),var(--acc))}
+.ghost{background:transparent;color:var(--mut)}body.lock{overflow:hidden}
+#prog{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,var(--lav),var(--acc));z-index:30}
+#pill{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:25;display:flex;gap:4px;align-items:center;background:var(--card);border:2px solid var(--lav3);border-radius:99px;padding:4px 6px;box-shadow:0 6px 22px rgba(106,69,224,.2)}
+#pill span{font-weight:700;color:var(--mut);font-size:14px;min-width:52px;text-align:center}#pill button{padding:6px 12px}
+nav button{padding:6px 12px;font-size:14px;white-space:nowrap}
+.rv{opacity:0;transform:translateY(24px);transition:opacity .7s,transform .7s}.rv.in{opacity:1;transform:none}
+.note{color:var(--mut);font-size:13px;margin:8px 0 0}
+.exp{margin-top:12px;background:var(--lav3);border-left:5px solid var(--lav2);border-radius:10px;padding:12px 16px;font-size:15px}.exp ol{margin:6px 0 0}.exp b{color:var(--acc)}
+ol{padding-left:22px}li{margin:5px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.grid .card{margin:0}
+footer{text-align:center;color:var(--mut);padding:26px;font-size:14px;border-top:2px solid var(--lav3)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body class="lock">
+<canvas id="bg" aria-hidden="true"></canvas>
+<div id="prog"></div>
+<div id="pill"><button id="pv" aria-label="Previous slide">◀</button><span id="pc">1 / 10</span><button id="nx" aria-label="Next slide">▶</button></div>
+<div id="intro" role="dialog" aria-label="Welcome"><div class="ibox"><div class="itag">Digital Logic Design · Group 10</div>
+<h1 data-type="Welcome to our presentation."></h1>
+<p data-type="Sequential circuit analysis with D and T flip-flops."></p>
+<p data-type="Gate equations, state tables, state diagrams and live timing waveforms, all running right here."></p>
+<div class="ib"><i id="ibar"></i></div><button class="run" id="igo" hidden>Start presentation ▶</button> <button class="ghost" id="iskip">Skip</button></div></div>
+<nav id="nav"><b>Group 10</b>
+<a href="#overview">Overview</a><a href="#d-circuit">D Circuit</a><a href="#d-tables">D Tables</a><a href="#d-diagram">D Diagram</a><a href="#d-wave">D Waveform</a>
+<a href="#t-circuit">T Circuit</a><a href="#t-tables">T Tables</a><a href="#t-diagram">T Diagram</a><a href="#t-wave">T Waveform</a><a href="#summary">Summary</a><button id="replay" style="margin-left:auto">↻ Intro</button><button id="fs">⛶ Present</button></nav>
+
+<header class="hero" id="overview">
+<h1>Sequential Circuit Analysis: D & T Flip-Flops</h1>
+<p>Complete logic schematics, Boolean equations, gate subtables, state tables, state diagrams and timing waveforms. Every stage is interactive: press Run to watch each circuit work.</p>
+<div class="chips"><span class="chip">Digital Logic Design</span><span class="chip">Prepared by Group 10</span><span class="chip">D-FF & T-FF Analysis</span></div>
+<p style="margin-top:20px;font-size:14px">Tip: press ← → to move between slides, or use the buttons at the bottom right.</p>
+</header>
+
+<main>
+<h2 class="part" style="margin-top:34px">Part 1: Sequential Circuit with D Flip-Flop</h2>
+
+<section id="d-circuit">
+<h3>1.1 Circuit Diagram & Logic Gate Equations</h3>
+<p>Inputs x and y enter from the left and the output A leaves on the right. Two 2-input XOR gates feed a single positive-edge-triggered D Flip-Flop whose output is A. The present state A is fed back into the second XOR gate.</p>
+<div class="card">
+<div class="bar"><button class="run" id="dRun">▶ Run</button><button id="dX">x = 0</button><button id="dY">y = 0</button><button id="dStep">Clock ↑</button><button id="dRst">Reset</button><span class="stat" id="dStat"></span></div>
+<div class="sv"><svg class="ckt" viewBox="0 0 790 300" role="img" aria-label="D flip-flop circuit with two XOR gates, inputs on the left and output on the right">
+<path class="w" data-s="dx" d="M60 80H145"/><path class="w" data-s="dy" d="M60 120H145"/>
+<path class="w" data-s="dg" d="M230 100H280V120H325"/><path class="w" data-s="dd" d="M410 140H500"/>
+<path class="w" data-s="dA" d="M600 140H700M650 140V275H290V160H325"/>
+<path class="w" id="dClkW" d="M550 232V180"/>
+<circle class="nd" data-s="dA" cx="650" cy="140" r="5"/><circle class="nd" data-s="dx" cx="60" cy="80" r="5"/><circle class="nd" data-s="dy" cx="60" cy="120" r="5"/>
+<g transform="translate(150,100)"><path class="bx" d="M0,-40Q25,-40 80,0Q25,40 0,40Q18,0 0,-40Z"/><path class="gt" d="M-12,-40Q6,0 -12,40"/></g><g transform="translate(330,140)"><path class="bx" d="M0,-40Q25,-40 80,0Q25,40 0,40Q18,0 0,-40Z"/><path class="gt" d="M-12,-40Q6,0 -12,40"/></g>
+<rect class="bx" x="500" y="100" width="100" height="80" rx="10"/><path d="M538 180L550 168L562 180" fill="none" stroke="var(--lav2)" stroke-width="2.5"/>
+<text class="t" x="514" y="144">D</text><text class="t" x="574" y="144">Q</text><text class="t s" x="550" y="124" text-anchor="middle">D-FF</text><text class="t s" x="550" y="160" text-anchor="middle">↑ edge</text>
+<text class="t" x="40" y="68" text-anchor="end">x</text><text class="t" x="40" y="108" text-anchor="end">y</text>
+<text class="v" data-v="dx" x="100" y="72">0</text><text class="v" data-v="dy" x="100" y="138">0</text>
+<text class="t s" x="190" y="158" text-anchor="middle">XOR 1</text><text class="t s" x="370" y="198" text-anchor="middle">XOR 2</text>
+<text class="t s" x="234" y="90">x ⊕ y</text><text class="v" data-v="dg" x="292" y="114">0</text>
+<text class="t s" x="440" y="128">D<tspan font-size="9" dy="3">A</tspan></text><text class="v" data-v="dd" x="456" y="162">0</text>
+<text class="t" x="550" y="252" text-anchor="middle">Clk</text>
+<text class="v" data-v="dA" x="668" y="130">0</text><text class="t" x="706" y="145">A (output)</text>
+<text class="t s" x="20" y="292">D<tspan font-size="9" dy="3">A</tspan><tspan dy="-3"> = A ⊕ x ⊕ y   ·   the flip-flop state A is the circuit output</tspan></text>
+</svg></div><div class="exp" id="dCExp"></div></div>
+<div class="card eq">
+<div><small>Gate 1 output (XOR 1): outputs 1 when x and y are unequal</small>G1 = x ⊕ y = x′y + xy′</div>
+<div><small>Gate 2 output / flip-flop input equation</small>D<sub>A</sub> = A ⊕ (x ⊕ y) = A ⊕ x ⊕ y</div>
+<div><small>Full expanded algebraic form</small>D<sub>A</sub> = A′x′y + A′xy′ + Ax′y′ + Axy = ∑m(1, 2, 4, 7)</div>
+<div><small>Characteristic & next-state equation: Q(t+1) = D</small>A(t+1) = D<sub>A</sub> = A ⊕ x ⊕ y = A′x′y + A′xy′ + Ax′y′ + Axy</div>
+<div><small>Circuit output</small>No separate output gate exists; the flip-flop state A itself serves as the output.</div>
+</div>
+</section>
+
+<section id="d-tables">
+<h3>1.2 Gate Subtable (Intermediate Step-by-Step Evaluation)</h3>
+<div class="tw"><table id="dGate"></table></div>
+<h3>1.3 Complete State Table & Solution Method (D Flip-Flop)</h3>
+<p>The highlighted row follows the live circuit above.</p>
+<div class="tw"><table id="dState"></table></div>
+<div class="card"><b>Step-by-step solution procedure</b><ol>
+<li><b>Identify variables:</b> with 1 flip-flop (A) and 2 external inputs (x, y), list all 8 binary rows from 000 to 111.</li>
+<li><b>Evaluate Gate 1 (x ⊕ y):</b> when xy ∈ {00, 11}, x ⊕ y = 0; when xy ∈ {01, 10}, x ⊕ y = 1.</li>
+<li><b>Evaluate Gate 2 (D<sub>A</sub>):</b> XOR the result of Gate 1 with the present state A.</li>
+<li><b>Determine next state A(t+1):</b> apply the D flip-flop characteristic equation A(t+1) = D<sub>A</sub>. Copy the D<sub>A</sub> column directly into A(t+1).</li></ol></div>
+</section>
+
+<section id="d-diagram">
+<h3>1.4 State Diagram (D Flip-Flop)</h3>
+<p>Two states: A = 0 and A = 1. Run applies the input sequence 01, 10, 11, 00, 01, 11, 10, 00 and lights up the edge taken.</p>
+<div class="card">
+<div class="bar"><button class="run" id="dgRun">▶ Run</button><button id="dgRst">Reset</button><span class="stat" id="dgStat">State A = 0</span></div>
+<div class="sv"><svg viewBox="0 0 720 270" role="img" aria-label="D flip-flop state diagram">
+<defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5 0 10z" fill="context-stroke"/></marker></defs>
+<path class="ed" id="e00" marker-end="url(#ar)" d="M195 98C160 20 280 20 245 98"/><text class="t" x="220" y="28" text-anchor="middle">00, 11 (Hold 0)</text>
+<path class="ed" id="e11" marker-end="url(#ar)" d="M475 98C440 20 560 20 525 98"/><text class="t" x="500" y="28" text-anchor="middle">00, 11 (Hold 1)</text>
+<path class="ed" id="e01" marker-end="url(#ar)" d="M258 120Q360 70 462 120"/><text class="t s" x="360" y="76" text-anchor="middle">01, 10 (PS 0 → NS 1)</text>
+<path class="ed" id="e10" marker-end="url(#ar)" d="M462 160Q360 210 258 160"/><text class="t s" x="360" y="224" text-anchor="middle">01, 10 (PS 1 → NS 0)</text>
+<circle class="st" id="s0" cx="220" cy="140" r="40"/><text class="t" x="220" y="148" text-anchor="middle" font-size="24">0</text>
+<circle class="st" id="s1" cx="500" cy="140" r="40"/><text class="t" x="500" y="148" text-anchor="middle" font-size="24">1</text>
+</svg></div><div class="exp" id="dgExp"></div></div>
+</section>
+
+<section id="d-wave">
+<h3>1.5 Timing Waveform: Lavender Edition (D Flip-Flop)</h3>
+<p>The timing diagram traces all 8 rows of the D flip-flop state table across 8 positive-edge-triggered clock cycles (Cycles 1–8).</p>
+<div class="card"><div class="bar"><button class="run" id="dwRun">▶ Run</button><button id="dwPrev">◀ Prev cycle</button><button id="dwNext">Next cycle ▶</button><span class="stat">Figure 3: all 8 state-table transitions</span></div><div class="sv"><svg id="dwave"></svg></div><p class="note">Note: each cycle replays one row of the state table (present state and inputs are set to that row), so A and B are not chained from one cycle to the next.</p><div class="exp" id="dExp">Press Run, or step with Prev / Next, to see exactly what happens in each clock cycle.</div></div>
+</section>
+
+<h2 class="part">Part 2: Sequential Circuit with T Flip-Flops</h2>
+
+<section id="t-circuit">
+<h3>2.1 Circuit Diagram & Logic Gate Equations</h3>
+<p>Two positive-edge-triggered T flip-flops (A and B), two 2-input AND gates, one external input x and one combinational output y. Both flip-flops share a common Clock and an active-low Reset line.</p>
+<div class="card">
+<div class="bar"><button class="run" id="tRun">▶ Run</button><button id="tX">x = 0</button><button id="tStep">Clock ↑</button><button id="tRst">Reset</button><span class="stat" id="tStat"></span></div>
+<div class="sv"><svg class="ckt" viewBox="0 0 800 340" role="img" aria-label="T flip-flop circuit, input x on the left and output y on the right">
+<path class="w" data-s="tx" d="M30 90H330M90 90V210H165"/>
+<path class="w" data-s="tTA" d="M250 230H330"/>
+<path class="w" data-s="tA" d="M430 230H520V180H560"/>
+<path class="w" data-s="tB" d="M430 90H470V300H130V250H165M470 140H560"/>
+<path class="w" data-s="ty" d="M640 160H760"/>
+<circle class="nd" data-s="tx" cx="90" cy="90" r="5"/><circle class="nd" data-s="tx" cx="30" cy="90" r="5"/><circle class="nd" data-s="tB" cx="470" cy="140" r="5"/>
+<g transform="translate(170,230)"><path class="bx" d="M0,-40H40A40,40 0 0 1 40,40H0Z"/></g><g transform="translate(560,160)"><path class="bx" d="M0,-40H40A40,40 0 0 1 40,40H0Z"/></g><rect class="bx" x="330" y="50" width="100" height="80" rx="10"/><path class="w" d="M360 50V32M400 50V32"/><path d="M352 50L360 60L368 50" fill="none" stroke="var(--lav2)" stroke-width="2.5"/><text class="t s" x="360" y="26" text-anchor="middle">Clk</text><text class="t s" x="400" y="26" text-anchor="middle">R</text><text class="t s" x="338" y="94">T</text><text class="t s" x="414" y="94">Q</text><text class="t" x="380" y="98" text-anchor="middle" font-size="22">B</text><rect class="bx" x="330" y="190" width="100" height="80" rx="10"/><path class="w" d="M360 190V172M400 190V172"/><path d="M352 190L360 200L368 190" fill="none" stroke="var(--lav2)" stroke-width="2.5"/><text class="t s" x="360" y="166" text-anchor="middle">Clk</text><text class="t s" x="400" y="166" text-anchor="middle">R</text><text class="t s" x="338" y="234">T</text><text class="t s" x="414" y="234">Q</text><text class="t" x="380" y="238" text-anchor="middle" font-size="22">A</text>
+<text class="t" x="8" y="76">x</text><text class="v" data-v="tx" x="46" y="78">0</text>
+<text class="t s" x="210" y="286" text-anchor="middle">AND 1</text><text class="t s" x="600" y="216" text-anchor="middle">AND 2</text>
+<text class="t s" x="262" y="220">T<tspan font-size="9" dy="3">A</tspan><tspan dy="-3"> = x·B</tspan></text><text class="v" data-v="tTA" x="290" y="252" text-anchor="middle">0</text>
+<text class="t s" x="180" y="80">T<tspan font-size="9" dy="3">B</tspan><tspan dy="-3"> = x</tspan></text><text class="v" data-v="tx" x="244" y="80">0</text>
+<text class="t" x="438" y="220">A</text><text class="v" data-v="tA" x="490" y="220">0</text>
+<text class="t" x="438" y="80">B</text><text class="v" data-v="tB" x="482" y="80">0</text>
+<text class="v" data-v="ty" x="700" y="148" text-anchor="middle">0</text><text class="t" x="700" y="184" text-anchor="middle">y = A·B</text><text class="t s" x="700" y="202" text-anchor="middle">(output)</text>
+<text class="t s" x="400" y="334" text-anchor="middle">Common Clock ↑ and Reset (= 1, inactive) drive both flip-flops</text>
+</svg></div><div class="exp" id="tCExp"></div></div>
+<div class="card eq">
+<div><small>AND gate 1 (input to flip-flop A)</small>T<sub>A</sub> = x · B</div>
+<div><small>Direct input to flip-flop B</small>T<sub>B</sub> = x</div>
+<div><small>AND gate 2 (circuit output)</small>y = A · B</div>
+<div><small>T flip-flop characteristic equation (T = 0: no change · T = 1: toggle)</small>Q(t+1) = T ⊕ Q = T·Q′ + T′·Q</div>
+<div><small>Next state of A</small>A(t+1) = T<sub>A</sub> ⊕ A = (x·B) ⊕ A = (Bx)′A + (Bx)A′ = AB′ + Ax′ + A′Bx</div>
+<div><small>Next state of B</small>B(t+1) = T<sub>B</sub> ⊕ B = x ⊕ B = xB′ + x′B</div>
+</div>
+</section>
+
+<section id="t-tables">
+<h3>2.2 Gate Subtables (Individual Gate Truth Tables)</h3>
+<div class="grid"><div class="tw"><table id="tG1" style="min-width:0"></table></div><div class="tw"><table id="tG2" style="min-width:0"></table></div></div>
+<h3>2.3 Complete State Table & Solution Method (T Flip-Flop)</h3>
+<p>The highlighted row follows the live circuit above.</p>
+<div class="tw"><table id="tState"></table></div>
+<div class="card"><b>Step-by-step solution procedure</b><ol>
+<li><b>List all combinations:</b> with 2 flip-flops (A, B) and 1 external input (x), write all 2³ = 8 binary rows from 000 to 111.</li>
+<li><b>Calculate flip-flop inputs:</b> set T<sub>B</sub> = x directly from the input column; set T<sub>A</sub> = x · B (1 only when x = 1 and B = 1).</li>
+<li><b>Determine next states with the T rule:</b> if T = 0 then no change (NC), Q(t+1) = Q; if T = 1 then toggle, Q(t+1) = Q′.</li>
+<li><b>Calculate the output:</b> y = A · B from the present-state columns (Moore output: equals 1 only in state AB = 11).</li></ol></div>
+</section>
+
+<section id="t-diagram">
+<h3>2.4 State Diagram (T Flip-Flop: 2-Bit Binary Up-Counter)</h3>
+<p>Moore machine, state AB / output y. Run applies x = 1, 1, 1, 1, 1, 0, 1, 1 and lights up the edge taken.</p>
+<div class="card">
+<div class="bar"><button class="run" id="tgRun">▶ Run</button><button id="tgRst">Reset</button><span class="stat" id="tgStat">State AB = 00</span></div>
+<div class="sv"><svg viewBox="0 -30 640 360" role="img" aria-label="T flip-flop state diagram">
+<path class="ed" id="l0" marker-end="url(#ar)" d="M140 34C110 -20 210 -20 180 34"/><text class="t s" x="160" y="-10" text-anchor="middle">x = 0</text>
+<path class="ed" id="l1" marker-end="url(#ar)" d="M440 34C410 -20 510 -20 480 34"/><text class="t s" x="460" y="-10" text-anchor="middle">x = 0</text>
+<path class="ed" id="l2" marker-end="url(#ar)" d="M480 266C510 320 410 320 440 266"/><text class="t s" x="460" y="326" text-anchor="middle">x = 0</text>
+<path class="ed" id="l3" marker-end="url(#ar)" d="M180 266C210 320 110 320 140 266"/><text class="t s" x="160" y="326" text-anchor="middle">x = 0</text>
+<path class="ed" id="f0" marker-end="url(#ar)" d="M200 70H420"/><text class="t s" x="310" y="60" text-anchor="middle">x = 1</text>
+<path class="ed" id="f1" marker-end="url(#ar)" d="M460 110V190"/><text class="t s" x="475" y="155">x = 1</text>
+<path class="ed" id="f2" marker-end="url(#ar)" d="M420 230H200"/><text class="t s" x="310" y="254" text-anchor="middle">x = 1</text>
+<path class="ed" id="f3" marker-end="url(#ar)" d="M160 190V110"/><text class="t s" x="108" y="155">x = 1</text>
+<circle class="st" id="q0" cx="160" cy="70" r="38"/><text class="t" x="160" y="76" text-anchor="middle">00 / 0</text>
+<circle class="st" id="q1" cx="460" cy="70" r="38"/><text class="t" x="460" y="76" text-anchor="middle">01 / 0</text>
+<circle class="st" id="q2" cx="460" cy="230" r="38"/><text class="t" x="460" y="236" text-anchor="middle">10 / 0</text>
+<circle class="st" id="q3" cx="160" cy="230" r="38"/><text class="t" x="160" y="236" text-anchor="middle">11 / 1</text>
+</svg></div><div class="exp" id="tgExp"></div></div>
+</section>
+
+<section id="t-wave">
+<h3>2.5 Timing Waveform: Lavender Edition (T Flip-Flops)</h3>
+<p>All signals across 8 clock cycles (Cycles 1–8); every transition occurs on the rising clock edge.</p>
+<div class="card"><div class="bar"><button class="run" id="twRun">▶ Run</button><button id="twPrev">◀ Prev cycle</button><button id="twNext">Next cycle ▶</button><span class="stat">Figure 6: cycles 1–8</span></div><div class="sv"><svg id="twave"></svg></div><p class="note">Note: each cycle replays one row of the state table (present state and inputs are set to that row), so A and B are not chained from one cycle to the next.</p><div class="exp" id="tExp">Press Run, or step with Prev / Next, to see exactly what happens in each clock cycle.</div></div>
+</section>
+
+<section id="summary">
+<h2>Part 3: Summary of Completed & Standardized Elements</h2>
+<div class="grid">
+<div class="card"><b>Explicit gate-level subtables</b><br>Isolated truth tables for x ⊕ y, D<sub>A</sub>, T<sub>A</sub> = x·B, T<sub>B</sub> = x and y = A·B show how each gate contributes before the full state table is built.</div>
+<div class="card"><b>Flip-flop action annotations</b><br>Set / Reset labels for the D flip-flop; NC (no change) and Toggle labels for the T flip-flop accompany every row of the state tables.</div>
+<div class="card"><b>Complete Boolean expansion</b><br>Compact XOR form D<sub>A</sub> = A ⊕ x ⊕ y and expanded sum-of-products forms A′x′y + A′xy′ + Ax′y′ + Axy and AB′ + Ax′ + A′Bx.</div>
+<div class="card"><b>Timing & clocking behavior</b><br>All state transitions (PS → NS) occur synchronously at the rising (positive) edge of the clock (↑), as shown in the lavender timing waveforms.</div>
+</div></section>
+</main>
+<footer>Group 10 · Sequential Circuit Analysis (D & T Flip-Flops) · Digital Logic Design</footer>
+
+<script>
+const $=(s)=>document.querySelector(s),$$=(s)=>[...document.querySelectorAll(s)];
+const R8=[...Array(8).keys()];
+function tbl(id,h,rows){$(id).innerHTML='<thead><tr>'+h.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(c=>`<td>${c}</td>`).join('')+'</tr>').join('')+'</tbody>'}
+function hl(id,i){$$(id+' tbody tr').forEach((r,k)=>r.classList.toggle('act',k===i))}
+function sig(n,v){$$(`[data-s="${n}"]`).forEach(e=>e.classList.toggle('hi',!!v));$$(`[data-v="${n}"]`).forEach(e=>e.textContent=v)}
+function runner(btn,step,reset,ms){let t=null;const stop=()=>{clearInterval(t);t=null;btn.textContent='▶ Run'};
+btn.onclick=()=>{if(t){stop();return}reset();btn.textContent='■ Stop';step();t=setInterval(step,ms)};return stop}
+/* ---------- tables ---------- */
+const D=R8.map(i=>{const A=i>>2,x=(i>>1)&1,y=i&1,g=x^y;return{A,x,y,g,d:A^g}});
+const dAct=["Reset (Hold 0)","Set (0 → 1)","Set (0 → 1)","Reset (Hold 0)","Set (Hold 1)","Reset (1 → 0)","Reset (1 → 0)","Set (Hold 1)"];
+tbl('#dGate',['Present State (A)','Input (x)','Input (y)','XOR 1: x ⊕ y','XOR 2: D<sub>A</sub> = A ⊕ (x ⊕ y)'],D.map(r=>[r.A,r.x,r.y,r.g,r.d]));
+tbl('#dState',['Present State (A)','Inputs (x, y)','FF Input (D<sub>A</sub>)','Next State A(t+1)','Flip-Flop Action'],D.map((r,i)=>[r.A,r.x+' '+r.y,r.d,r.d,dAct[i]]));
+const T=R8.map(i=>{const A=i>>2,B=(i>>1)&1,x=i&1,ta=x&B,tb=x;return{A,B,x,ta,tb,na:A^ta,nb:B^tb,y:A&B}});
+const tAct=["NC, NC","NC, Toggle","NC, NC","Toggle, Toggle"];
+tbl('#tG1',['Input (x)','State (B)','Direct: T<sub>B</sub> = x','AND 1: T<sub>A</sub> = x·B'],[0,1,2,3].map(i=>{const x=i>>1,B=i&1;return[x,B,x,x&B]}));
+tbl('#tG2',['State (A)','State (B)','AND 2: y = A·B'],[0,1,2,3].map(i=>[i>>1,i&1,(i>>1)&(i&1)]));
+tbl('#tState',['A','B','x','T<sub>A</sub> = x·B','T<sub>B</sub> = x','A(t+1)','B(t+1)','y = A·B','Action (A, B)'],T.map((r,i)=>[r.A,r.B,r.x,r.ta,r.tb,r.na,r.nb,r.y,tAct[i%4]]));
+/* ---------- D circuit ---------- */
+let dA=0,dx=0,dy=0,dk=0;const dSeq=[[0,1],[1,0],[1,1],[0,0],[0,1],[1,1],[1,0],[0,0]];
+function dDraw(){const g=dx^dy,d=dA^g;sig('dx',dx);sig('dy',dy);sig('dg',g);sig('dd',d);sig('dA',dA);
+$('#dX').textContent='x = '+dx;$('#dY').textContent='y = '+dy;$('#dStat').textContent=`A = ${dA} · D = ${d} → next A = ${d}`;hl('#dState',dA*4+dx*2+dy);dEx(dA*4+dx*2+dy,'#dCExp','Right now: ');
+$('#dClkW').classList.remove('hi')}
+function dClock(){dA=dA^dx^dy;$('#dClkW').classList.add('hi');dDraw();$('#dClkW').classList.add('hi');setTimeout(()=>$('#dClkW').classList.remove('hi'),350)}
+const dStop=runner($('#dRun'),()=>{[dx,dy]=dSeq[dk++%8];dDraw();setTimeout(dClock,1000)},()=>{dA=0;dk=0},2200);
+$('#dX').onclick=()=>{dStop();dx^=1;dDraw()};$('#dY').onclick=()=>{dStop();dy^=1;dDraw()};
+$('#dStep').onclick=()=>{dStop();dClock()};$('#dRst').onclick=()=>{dStop();dA=dx=dy=0;dDraw()};dDraw();
+/* ---------- T circuit ---------- */
+let tA=0,tB=0,tx=0,tk=0;const tSeq=[1,1,1,1,1,0,1,1];
+function tDraw(){const ta=tx&tB;sig('tx',tx);sig('tTA',ta);sig('tA',tA);sig('tB',tB);sig('ty',tA&tB);
+$('#tX').textContent='x = '+tx;$('#tStat').textContent=`AB = ${tA}${tB} · T_A = ${ta} · T_B = ${tx} · y = ${tA&tB}`;hl('#tState',tA*4+tB*2+tx);tEx(tA*4+tB*2+tx,'#tCExp','Right now: ')}
+function tClock(){const ta=tx&tB;[tA,tB]=[tA^ta,tB^tx];tDraw()}
+const tStop=runner($('#tRun'),()=>{tx=tSeq[tk++%8];tDraw();setTimeout(tClock,900)},()=>{tA=tB=0;tk=0},2000);
+$('#tX').onclick=()=>{tStop();tx^=1;tDraw()};$('#tStep').onclick=()=>{tStop();tClock()};$('#tRst').onclick=()=>{tStop();tA=tB=tx=0;tDraw()};tDraw();
+/* ---------- state diagrams ---------- */
+let gs=0,gk=0;function gClear(){$$('#e00,#e11,#e01,#e10,#s0,#s1').forEach(e=>e.classList.remove('on'))}
+function gReset(){gs=0;gk=0;gClear();$('#s0').classList.add('on');$('#dgStat').textContent='State A = 0';$('#dgExp').textContent='Press Run to apply inputs and see why each transition is taken.'}
+runner($('#dgRun'),()=>{const[x,y]=dSeq[gk++%8],ns=gs^x^y,e=gs===ns?(gs?'e11':'e00'):(gs?'e10':'e01');gClear();$('#'+e).classList.add('on');
+$('#s'+ns).classList.add('on');$('#dgStat').textContent=`xy = ${x}${y}: A = ${gs} → ${ns}`;dEx(gs*4+x*2+y,'#dgExp','Step '+gk+', edge taken: ');gs=ns},gReset,1300);
+$('#dgRst').onclick=gReset;gReset();
+let ts=0,tgk=0;function tgClear(){$$('[id^=l],[id^=f],[id^=q]').forEach(e=>e.classList.remove('on'))}
+function tgReset(){ts=0;tgk=0;tgClear();$('#q0').classList.add('on');$('#tgStat').textContent='State AB = 00';$('#tgExp').textContent='Press Run to apply x and see why each transition is taken.'}
+const nm=['00','01','10','11'];
+runner($('#tgRun'),()=>{const x=tSeq[tgk++%8],ns=x?(ts+1)%4:ts;tgClear();$('#'+(x?'f':'l')+ts).classList.add('on');$('#q'+ns).classList.add('on');
+$('#tgStat').textContent=`x = ${x}: ${nm[ts]} → ${nm[ns]}, y of the new state = ${ns===3?1:0}`;tEx(ts*2+x,'#tgExp','Step '+tgk+', edge taken: ');ts=ns},tgReset,1300);
+$('#tgRst').onclick=tgReset;tgReset();
+/* ---------- waveforms ---------- */
+function wave(id,sigs,btn,ex,prev,next){const W=72,L=112,H=46,n=8,Wt=L+W*n+12,h=sigs.length*H+56,svg=$(id),p=id.slice(1);
+svg.setAttribute('viewBox',`0 0 ${Wt} ${h}`);
+let s=`<defs><clipPath id="${p}c"><rect id="${p}r" width="${Wt}" height="${h}"/></clipPath></defs>`;
+for(let i=0;i<n;i++)s+=`<rect class="col" data-c="${i}" x="${L+i*W}" y="22" width="${W}" height="${h-40}"/><line class="gl" x1="${L+i*W}" x2="${L+i*W}" y1="22" y2="${h-20}"/><text class="t s" x="${L+i*W+W/2}" y="${h-4}" text-anchor="middle">Cycle ${i+1}</text><text class="v" x="${L+i*W+4}" y="16">↑</text>`;
+s+=`<line class="gl" x1="${L+W*n}" x2="${L+W*n}" y1="22" y2="${h-20}"/><g clip-path="url(#${p}c)">`;
+sigs.forEach(([name,v,clk],r)=>{const hi=34+r*H,lo=hi+H-18;let d='';
+if(clk)for(let i=0;i<n;i++){const x=L+i*W;d+=`${i?'L':'M'}${x} ${lo}L${x} ${hi}L${x+W/2} ${hi}L${x+W/2} ${lo}L${x+W} ${lo}`}
+else v.forEach((b,i)=>{const x=L+i*W,y=b?hi:lo;d+=i?`L${x} ${v[i-1]?hi:lo}L${x} ${y}`:`M${x} ${y}`;d+=`L${x+W} ${y}`});
+s+=`<path class="wv ${clk?'c':''}" d="${d}"/>`;
+if(!clk)v.forEach((b,i)=>s+=`<text class="t s" x="${L+i*W+W/2}" y="${(b?hi:lo)+(b?15:-5)}" text-anchor="middle">${b}</text>`)});
+s+='</g>';sigs.forEach(([name],r)=>s+=`<text class="t" x="6" y="${34+r*H+22}">${name}</text>`);svg.innerHTML=s;
+let raf=null,cur=-1;const show=c=>{cur=c;$$(id+' .col').forEach((e,i)=>e.classList.toggle('on',i===c));ex(c)};const reset=()=>{cancelAnimationFrame(raf);raf=null;$(`#${p}r`).setAttribute('width',Wt);$$(`#${p} .col`.replace('#'+p,id)).forEach(c=>c.classList.remove('on'));btn.textContent='▶ Run'};
+btn.onclick=()=>{if(raf){reset();return}btn.textContent='■ Stop';cur=-1;const t0=performance.now(),dur=n*1000;
+const f=t=>{const q=Math.min(1,(t-t0)/dur);$(`#${p}r`).setAttribute('width',L+q*W*n);const c=Math.min(n-1,Math.floor(q*n));
+if(c!==cur)show(c);if(q<1)raf=requestAnimationFrame(f);else{raf=null;btn.textContent='▶ Run';$(`#${p}r`).setAttribute('width',Wt)}};raf=requestAnimationFrame(f)};const go=d=>{reset();cur=((cur<0?(d>0?-1:0):cur)+d+n)%n;show(cur)};prev.onclick=()=>go(-1);next.onclick=()=>go(1)}
+const col=k=>D.map(r=>r[k]),tc=k=>T.map(r=>r[k]);
+wave('#dwave',[['Clk',0,1],['A',col('A')],['x',col('x')],['y',col('y')],['A(t+1) = D<tspan font-size="9" dy="3">A</tspan>',col('d')]].map(a=>a[0].includes('tspan')?['A(t+1)=DA',a[1]]:a),$('#dwRun'),c=>dEx(c,'#dExp','Cycle '+(c+1)+': '),$('#dwPrev'),$('#dwNext'));
+wave('#twave',[['Clk',0,1],['A',tc('A')],['B',tc('B')],['x = TB',tc('x')],['TA = xB',tc('ta')],['A(t+1)',tc('na')],['B(t+1)',tc('nb')],['y = AB',tc('y')]],$('#twRun'),c=>tEx(c,'#tExp','Cycle '+(c+1)+': '),$('#twPrev'),$('#twNext'));
+function dEx(c,id,lb){const r=D[c],ch=r.A!==r.d;$(id).innerHTML=`<b>${lb}A = ${r.A}, x = ${r.x}, y = ${r.y} → next A = ${r.d} (${dAct[c]})</b><ol><li>XOR 1: x ⊕ y = ${r.x} ⊕ ${r.y} = <b>${r.g}</b> (${r.x===r.y?'inputs are equal, so the result is 0':'inputs differ, so the result is 1'})</li><li>XOR 2: D<sub>A</sub> = A ⊕ (x ⊕ y) = ${r.A} ⊕ ${r.g} = <b>${r.d}</b></li><li>At the rising clock edge ↑ the D flip-flop copies its input: A(t+1) = D<sub>A</sub> = <b>${r.d}</b></li><li>Action: <b>${dAct[c]}</b>. ${ch?`A changes from ${r.A} to ${r.d}`:`A does not change, it stays ${r.A}`}, so the circuit output is now <b>${r.d}</b>.</li></ol>`}
+function tEx(c,id,lb){const r=T[c],tg=(t,q,n)=>t?`T = 1, so it toggles: ${q} → ${n}`:`T = 0, so no change: it stays ${q}`;$(id).innerHTML=`<b>${lb}A = ${r.A}, B = ${r.B}, x = ${r.x} → next AB = ${r.na}${r.nb}, y = ${r.y} (${tAct[c%4]})</b><ol><li>T<sub>B</sub> = x = <b>${r.tb}</b></li><li>T<sub>A</sub> = x·B = ${r.x}·${r.B} = <b>${r.ta}</b></li><li>Flip-flop A: ${tg(r.ta,r.A,r.na)}. A(t+1) = <b>${r.na}</b></li><li>Flip-flop B: ${tg(r.tb,r.B,r.nb)}. B(t+1) = <b>${r.nb}</b></li><li>Output y = A·B = ${r.A}·${r.B} = <b>${r.y}</b> (Moore output of the present state ${r.A}${r.B}${r.y?', the only state where y = 1':''})</li><li>Action rule (A, B): <b>${tAct[c%4]}</b>. The counter goes ${r.A}${r.B} → ${r.na}${r.nb}.</li></ol>`}
+/* ---------- interactive background ---------- */
+(()=>{const c=$('#bg'),g=c.getContext('2d'),rm=matchMedia('(prefers-reduced-motion:reduce)').matches;let w,h,P=[],k=0,col='#8b6cf0',m={x:-999,y:-999};
+const rs=()=>{const d=devicePixelRatio||1;w=innerWidth;h=innerHeight;c.width=w*d;c.height=h*d;g.setTransform(d,0,0,d,0,0);P=Array.from({length:Math.min(80,Math.floor(w*h/15000))},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.5,vy:(Math.random()-.5)*.5,b:Math.random()<.5?0:1}))};
+addEventListener('resize',rs);addEventListener('pointermove',e=>{m.x=e.clientX;m.y=e.clientY});
+addEventListener('pointerdown',e=>P.forEach(p=>{const dx=p.x-e.clientX,dy=p.y-e.clientY,d=Math.hypot(dx,dy)||1;if(d<220){p.vx+=dx/d*3;p.vy+=dy/d*3;p.b^=1}}));
+const f=()=>{if(!(k++%90))col=getComputedStyle(document.documentElement).getPropertyValue('--lav2').trim()||col;
+g.clearRect(0,0,w,h);g.fillStyle=g.strokeStyle=col;g.lineWidth=1.2;g.font='700 17px Consolas,monospace';
+P.forEach(p=>{const dx=p.x-m.x,dy=p.y-m.y,d=Math.hypot(dx,dy);if(d<150&&d>0){p.vx+=dx/d*.1;p.vy+=dy/d*.1}p.vx*=.992;p.vy*=.992;if(Math.hypot(p.vx,p.vy)<.2){p.vx+=(Math.random()-.5)*.06;p.vy+=(Math.random()-.5)*.06}
+p.x+=p.vx;p.y+=p.vy;if(p.x<-20)p.x=w+20;if(p.x>w+20)p.x=-20;if(p.y<-20)p.y=h+20;if(p.y>h+20)p.y=-20});
+for(let i=0;i<P.length;i++){const a=P[i];for(let j=i+1;j<P.length;j++){const b=P[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<130){g.globalAlpha=(1-d/130)*.28;g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b.x,b.y);g.stroke()}}
+const d=Math.hypot(a.x-m.x,a.y-m.y);if(d<180){g.globalAlpha=(1-d/180)*.6;g.beginPath();g.moveTo(a.x,a.y);g.lineTo(m.x,m.y);g.stroke()}
+g.globalAlpha=d<180?.9:.3;g.fillText(a.b,a.x-5,a.y+6)}
+g.globalAlpha=1;if(!rm)requestAnimationFrame(f)};rs();f()})();
+/* ---------- welcome & presentation mode ---------- */
+(()=>{const ov=$('#intro'),L=[...ov.querySelectorAll('[data-type]')],bar=$('#ibar'),go=$('#igo'),rm=matchMedia('(prefers-reduced-motion:reduce)').matches,sl=ms=>new Promise(r=>setTimeout(r,ms)),tot=L.reduce((a,e)=>a+e.dataset.type.length,0);let tok=0;
+const close=()=>{tok++;ov.classList.add('off');document.body.classList.remove('lock');scrollTo(0,0)};
+async function play(){const id=++tok;ov.classList.remove('off');document.body.classList.add('lock');L.forEach(e=>{e.textContent='';e.classList.remove('cur')});go.hidden=true;bar.style.width='0';let n=0;
+for(const e of L){e.classList.add('cur');for(const ch of e.dataset.type){if(id!==tok)return;e.textContent+=ch;bar.style.width=(++n/tot*100)+'%';if(!rm)await sl(/[.,]/.test(ch)?230:26)}e.classList.remove('cur');if(!rm)await sl(350)}go.hidden=false;go.focus()}
+go.onclick=close;$('#iskip').onclick=close;$('#replay').onclick=()=>{scrollTo(0,0);play()};
+const ids=$$('#nav a[href^="#"]').map(a=>a.getAttribute('href').slice(1));
+const cur=()=>{if(scrollY+innerHeight>=document.documentElement.scrollHeight-4)return ids.length-1;let k=0;ids.forEach((id,i)=>{if($('#'+id).getBoundingClientRect().top<=140)k=i});return k};
+const upd=()=>{$('#pc').textContent=(cur()+1)+' / '+ids.length;$('#prog').style.width=(scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight)*100)+'%'};
+const move=d=>$('#'+ids[Math.max(0,Math.min(ids.length-1,cur()+d))]).scrollIntoView({behavior:'smooth'});
+addEventListener('scroll',upd,{passive:true});upd();$('#pv').onclick=()=>move(-1);$('#nx').onclick=()=>move(1);
+addEventListener('keydown',e=>{if(!ov.classList.contains('off')){if(e.key==='Escape')close();return}if(e.key==='ArrowRight')move(1);if(e.key==='ArrowLeft')move(-1)});
+const fs=$('#fs');if(!document.documentElement.requestFullscreen)fs.hidden=true;fs.onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
+if(!rm){const ro=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');ro.unobserve(e.target)}}),{threshold:.04});$$('main section,main h2.part').forEach(e=>{e.classList.add('rv');ro.observe(e)})}
+play()})();
+/* ---------- nav highlight ---------- */
+const links=$$('#nav a'),io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id))}),{rootMargin:'-30% 0px -60% 0px'});
+$$('header[id],section[id]').forEach(s=>io.observe(s));
+</script>
+</body>
+</html>
