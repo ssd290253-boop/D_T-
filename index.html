@@ -160,7 +160,7 @@ footer{text-align:center;color:var(--mut);padding:26px;font-size:14px;border-top
 </section>
 
 <section id="d-wave">
-<h3>1.5 Timing Waveform: Lavender Edition (D Flip-Flop)</h3>
+<h3>1.5 Timing Waveform: (D Flip-Flop)</h3>
 <p>The timing diagram traces all 8 rows of the D flip-flop state table across 8 positive-edge-triggered clock cycles (Cycles 1–8).</p>
 <div class="card"><div class="bar"><button class="run" id="dwRun">▶ Run</button><button id="dwPrev">◀ Prev cycle</button><button id="dwNext">Next cycle ▶</button><span class="stat">Figure 3: all 8 state-table transitions</span></div><div class="sv"><svg id="dwave"></svg></div><p class="note">Note: each cycle replays one row of the state table (present state and inputs are set to that row), so A and B are not chained from one cycle to the next.</p><div class="exp" id="dExp">Press Run, or step with Prev / Next, to see exactly what happens in each clock cycle.</div></div>
 </section>
@@ -234,7 +234,7 @@ footer{text-align:center;color:var(--mut);padding:26px;font-size:14px;border-top
 </section>
 
 <section id="t-wave">
-<h3>2.5 Timing Waveform: Lavender Edition (T Flip-Flops)</h3>
+<h3>2.5 Timing Waveform: (T Flip-Flops)</h3>
 <p>All signals across 8 clock cycles (Cycles 1–8); every transition occurs on the rising clock edge.</p>
 <div class="card"><div class="bar"><button class="run" id="twRun">▶ Run</button><button id="twPrev">◀ Prev cycle</button><button id="twNext">Next cycle ▶</button><span class="stat">Figure 6: cycles 1–8</span></div><div class="sv"><svg id="twave"></svg></div><p class="note">Note: each cycle replays one row of the state table (present state and inputs are set to that row), so A and B are not chained from one cycle to the next.</p><div class="exp" id="tExp">Press Run, or step with Prev / Next, to see exactly what happens in each clock cycle.</div></div>
 </section>
@@ -245,7 +245,7 @@ footer{text-align:center;color:var(--mut);padding:26px;font-size:14px;border-top
 <div class="card"><b>Explicit gate-level subtables</b><br>Isolated truth tables for x ⊕ y, D<sub>A</sub>, T<sub>A</sub> = x·B, T<sub>B</sub> = x and y = A·B show how each gate contributes before the full state table is built.</div>
 <div class="card"><b>Flip-flop action annotations</b><br>Set / Reset labels for the D flip-flop; NC (no change) and Toggle labels for the T flip-flop accompany every row of the state tables.</div>
 <div class="card"><b>Complete Boolean expansion</b><br>Compact XOR form D<sub>A</sub> = A ⊕ x ⊕ y and expanded sum-of-products forms A′x′y + A′xy′ + Ax′y′ + Axy and AB′ + Ax′ + A′Bx.</div>
-<div class="card"><b>Timing & clocking behavior</b><br>All state transitions (PS → NS) occur synchronously at the rising (positive) edge of the clock (↑), as shown in the lavender timing waveforms.</div>
+<div class="card"><b>Timing & clocking behavior</b><br>All state transitions (PS → NS) occur synchronously at the rising (positive) edge of the clock (↑), as shown in the  timing waveforms.</div>
 </div></section>
 </main>
 <footer>Group 10 · Sequential Circuit Analysis (D & T Flip-Flops) · Digital Logic Design</footer>
